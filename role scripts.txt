@@ -1,0 +1,139 @@
+---
+
+- name: install apache
+  yum:
+    name: apache
+    state: present
+
+- name: start and enable apache service
+  service:
+    name: apache
+    state: started
+    enabled: true
+*apache*
+
+
+*package*
+---
+- name: install necessary packages
+
+  package:
+
+    name:
+
+      - curl
+
+      - git
+
+      - vim
+
+    state: present
+
+*message*
+---
+
+- name: Display a custom message
+  debug:
+    msg: "Apache and necessary packages are installed and configured."
+
+*package.yml*
+
+---
+- name: install necessary packages
+
+  package:
+
+    name:
+
+      - curl
+
+      - git
+
+      - vim
+
+    state: present
+
+
+*main.yml*
+
+---
+
+- include: apache.yml
+
+- include: package.yml
+
+- include: message.yml
+
+*site.yml*
+
+---
+
+- hosts: all
+  become: true
+
+  roles:
+
+    - roles: myrole
+
+*dbservers main.yml*
+
+ - name: update cache
+      yum:
+        update_cache: yes
+
+
+    - name: install httpd
+      yum:
+        name: httpd
+        state: latest
+
+    - name: start httpd service on linux
+      service:
+        name: httpd
+        state: started
+        enabled: true
+
+
+    - name: updated.html copy
+      copy:
+        src: /home/jenkins-user/updated.html
+        dest: /var/www/html/index.html
+
+      notify:
+      - Restart httpd
+
+  handlers:
+    - name: Restart httpd
+      service:
+        name: httpd
+        state: restarted
+
+
+*webservers main.yml*
+
+ - name: install Nginx server
+      service:
+        name: Nginx
+        state: latest
+
+
+
+  - name: start Nginx server
+      service:
+        name: Nginx
+        state: started
+        enabled: true
+
+
+**inventory**
+
+[webservers]
+172.31.23.104 ansible_ssh_private_key_file=/home/jenkins-user/.ssh/id_ed25519
+
+
+
+[dbservers]
+172.31.21.105 ansible_ssh_private_key_file=/home/jenkins-user/.ssh/id_ed25519
+
+
+
